@@ -1,0 +1,25 @@
+gpu_id: 0
+backbone_alpha: 1.4
+points_size: 100
+batch_size: 128
+label_path: "/apdcephfs/share_1278051/hollandqian/data/ft_local/smartphone/train.txt"
+img_folder_path: "/apdcephfs/share_1278051/hollandqian/data/ft_local/smartphone/pngs/"
+class_list:
+  - 1
+optimizer:
+  rates:
+    - 0.001
+    - 0.0001
+    - 0.00005
+    - 0.00001
+  bounds:
+    - 250
+    - 700
+    - 850
+num_epochs:
+  1000
+loss:
+  using_weights: true
+  loss_ratio: 50
+  slop_loss_ratio: 0.01
+  diff_loss_ratio: 0.01
