@@ -1,6 +1,6 @@
 ## Introduction
 LDRNet is lightweight deep neural network for localizing document in a image/photo with extremely low latency. Given any image as input, LDRNet predicts the coordinates of the document's quadrilateral corners in real-time.
-
+![network](figs/architecture.png)
 ## Requirements
 * tensorflow==2.3.1
 * tensorflow-addons==0.11.2
@@ -8,6 +8,7 @@ LDRNet is lightweight deep neural network for localizing document in a image/pho
 * numpy==1.18.5
 
 ## Predict
+A simple example for predicting the quadrilateral corners of the image in <em>imgs</em> folder:
 ```
 python3 predict.py
 ```
