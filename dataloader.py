@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.framework import ops, dtypes
 import tensorflow_addons as tfa
-
+import numpy as np
 
 def rotate_point(point, radians, image_height, image_width):
     image_height, image_width = (

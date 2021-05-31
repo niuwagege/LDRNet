@@ -21,7 +21,7 @@ def init_args():
 
 def grad(config, model, inputs, targets):
     with tf.GradientTape() as tape:
-        loss_value, loss_list, y_ = loss(model, inputs, targets, training=True, coord_size=config["points_size"] * 2,
+        loss_value, loss_list, y_ = loss(config, model, inputs, targets, training=True, coord_size=config["points_size"] * 2,
                                          class_list=config["class_list"])
         return loss_value, loss_list, y_, tape.gradient(loss_value, model.trainable_variables)
 
@@ -51,8 +51,8 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
                           axis=1)
         else:
             y = tf.concat([new_coord, y[:, 8]], axis=1)
-    y_ = model(x, training=training)
-    coord_y_ = y_[:, 0:coord_size]
+    corner_y_, border_y_, class_y_ = model(x, training=training)
+    coord_y_ = tf.concat([corner_y_,border_y_],axis=1)
     coord_y = y[:, 0:coord_size]
     if config["loss"]["using_weights"]:
         weights = y[:, coord_size:coord_size * 2]
@@ -65,7 +65,6 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
     total_loss = 0
     for class_size in class_list:
         class_y = y[:, y_end]
-        class_y_ = y_[:, y__end:class_size + 1 + y__end]
         y_end += 1
         y__end += class_size + 1
         class_loss = tf.keras.losses.sparse_categorical_crossentropy(class_y, class_y_, from_logits=True)
@@ -102,12 +101,12 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
             losses.append(total_diff_loss - total_diff_loss)  # total_diff_loss * diff_loss_ratio)
         total_loss += 0  # total_slop_loss * slop_loss_ratio
         total_loss += 0  # total_diff_loss * diff_loss_ratio
-    return total_loss, losses, y_
+    return total_loss, losses, [coord_y_,class_y_]
 
 
 def train(config):
     gpus = tf.config.experimental.list_physical_devices('GPU')
-    tf.config.experimental.set_memory_growth(gpus[config["gpu_id"]], True)
+    tf.config.experimental.set_memory_growth(gpus[0], True)
     fwt = open("./train_icdar15_angle_loss_36p_{}bs_L2loss_{}points_{}backboneAlpha.log".format(config["batch_size"],
                                                                                                 config["points_size"],
                                                                                                 config["backbone_alpha"]
@@ -188,7 +187,7 @@ def train(config):
             epoch5_slop_loss_avg = tf.keras.metrics.Mean()
             epoch5_diff_loss_avg = tf.keras.metrics.Mean()
             for x, y in val_dataset:
-                loss_value, loss_list, y_ = loss(LDRModel, x, y, training=False, coord_size=config["points_size"] * 2,
+                loss_value, loss_list, y_ = loss(config, LDRModel, x, y, training=False, coord_size=config["points_size"] * 2,
                                                  class_list=config["class_list"])
                 epoch5_loc_loss_avg.update_state(loss_list[-3])
                 epoch5_slop_loss_avg.update_state(loss_list[-2])

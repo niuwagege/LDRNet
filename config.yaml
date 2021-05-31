@@ -1,9 +1,8 @@
-gpu_id: 0
 backbone_alpha: 1.4
 points_size: 100
 batch_size: 128
-label_path: "/apdcephfs/share_1278051/hollandqian/data/ft_local/smartphone/train.txt"
-img_folder_path: "/apdcephfs/share_1278051/hollandqian/data/ft_local/smartphone/pngs/"
+label_path: ""
+img_folder_path: ""
 class_list:
   - 1
 optimizer:
