@@ -16,5 +16,5 @@ python3 predict.py
 ```
 CUDA_VSIBLE_DEVICES=0 python3 train.py --config_file ./config.yaml
 ```
-###fill the label_path and img_folder_path in config.yaml
-###label consists of 18 elements: file name, eights floats for four coordinates, eights float for weights(set to 0.0625), class index(start from 0)
+* fill the label_path and img_folder_path in config.yaml
+* label consists of 18 elements: file name, eights floats for four coordinates, eights float for weights(set to 0.0625), class index(start from 0)
