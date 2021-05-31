@@ -1,3 +1,6 @@
+## Introduction
+LDRNet is lightweight deep neural network for localizing document in a image/photo with extremely low latency. Given any image as input, LDRNet predicts the coordinates of the document's quadrilateral corners in real-time.
+
 ## Requirements
 * tensorflow==2.3.1
 * tensorflow-addons==0.11.2
