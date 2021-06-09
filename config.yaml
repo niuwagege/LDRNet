@@ -22,3 +22,4 @@ loss:
   loss_ratio: 50
   slop_loss_ratio: 0.01
   diff_loss_ratio: 0.01
+  class_loss_ratio: 1

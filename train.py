@@ -10,6 +10,8 @@ import argparse
 import yaml
 
 
+# using weights 可以把那些分类为0的 loc loss 和line loss都设置为0，通过label.txt
+
 def init_args():
     parser = argparse.ArgumentParser(description='LDRNet')
     parser.add_argument('--config_file', default='config/open_dataset_resnet18_FPN_DBhead_polyLR.yaml', type=str)
@@ -21,7 +23,8 @@ def init_args():
 
 def grad(config, model, inputs, targets):
     with tf.GradientTape() as tape:
-        loss_value, loss_list, y_ = loss(config, model, inputs, targets, training=True, coord_size=config["points_size"] * 2,
+        loss_value, loss_list, y_ = loss(config, model, inputs, targets, training=True,
+                                         coord_size=config["points_size"] * 2,
                                          class_list=config["class_list"])
         return loss_value, loss_list, y_, tape.gradient(loss_value, model.trainable_variables)
 
@@ -52,7 +55,7 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
         else:
             y = tf.concat([new_coord, y[:, 8]], axis=1)
     corner_y_, border_y_, class_y_ = model(x, training=training)
-    coord_y_ = tf.concat([corner_y_,border_y_],axis=1)
+    coord_y_ = tf.concat([corner_y_, border_y_], axis=1)
     coord_y = y[:, 0:coord_size]
     if config["loss"]["using_weights"]:
         weights = y[:, coord_size:coord_size * 2]
@@ -72,8 +75,8 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
         total_loss += class_loss
     # tf.keras.losses.sparse_categorical_crossentropy()
     loc_loss = config["loss"]["loss_ratio"] * weighted_loc_loss(coord_y, coord_y_, weights=weights, loss_type="mse")
-    total_loss += loc_loss
-    losses.append(loc_loss)
+    total_loss += loc_loss * config["loss"]["class_loss_ratio"]
+    losses.append(loc_loss * config["loss"]["class_loss_ratio"])
 
     # cal slope and distance
 
@@ -101,7 +104,7 @@ def loss(config, model, x, y, training, coord_size=8, class_list=[1], use_line_l
             losses.append(total_diff_loss - total_diff_loss)  # total_diff_loss * diff_loss_ratio)
         total_loss += 0  # total_slop_loss * slop_loss_ratio
         total_loss += 0  # total_diff_loss * diff_loss_ratio
-    return total_loss, losses, [coord_y_,class_y_]
+    return total_loss, losses, [coord_y_, class_y_]
 
 
 def train(config):
@@ -187,7 +190,8 @@ def train(config):
             epoch5_slop_loss_avg = tf.keras.metrics.Mean()
             epoch5_diff_loss_avg = tf.keras.metrics.Mean()
             for x, y in val_dataset:
-                loss_value, loss_list, y_ = loss(config, LDRModel, x, y, training=False, coord_size=config["points_size"] * 2,
+                loss_value, loss_list, y_ = loss(config, LDRModel, x, y, training=False,
+                                                 coord_size=config["points_size"] * 2,
                                                  class_list=config["class_list"])
                 epoch5_loc_loss_avg.update_state(loss_list[-3])
                 epoch5_slop_loss_avg.update_state(loss_list[-2])
