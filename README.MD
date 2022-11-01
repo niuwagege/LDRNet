@@ -24,3 +24,14 @@ CUDA_VSIBLE_DEVICES=0 python3 train.py --config_file ./config.yaml
 ## Deployment
 * To TensorRT
 * To TNN
+
+## Citations
+If you publish work related to LDRNet or `Real-time Document Localization`, please refer to the following paper and cite accordingly:
+```bibtex
+@article{wu2022ldrnet,
+  title={LDRNet: Enabling Real-time Document Localization on Mobile Devices},
+  author={Wu, Han and Qian, Holland, Wu, Huaming and Aad van Moorsel},
+  journal={ECML-PKDD Workshop on IoT, Edge, and Mobile for Embedded Machine Learning (ITEM)},
+  year={2022}
+}
+```
